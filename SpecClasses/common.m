@@ -71,3 +71,7 @@ CGImageRef CreateCGImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata)
 	CGColorSpaceRelease(cgcolor);
 	return cgimage;
 }
+
+fz_context* CreateContext(size_t maxStore) {
+    return fz_new_context(NULL, NULL, maxStore);
+}
