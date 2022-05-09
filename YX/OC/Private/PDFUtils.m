@@ -6,6 +6,8 @@
 //
 
 #import "PDFUtils.h"
+#import "PDFContext.h"
+
 #import "PDFAnnotation_Private.h"
 
 #define STRIKE_HEIGHT (0.375f)
@@ -21,8 +23,73 @@ static CGSize fitPageToScreen(CGSize page, CGSize screen)
     return CGSizeMake(width, height);
 }
 
+int search_page(fz_document *doc, int number, char *needle, fz_cookie *cookie)
+{
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+    fz_rect hit_bbox[500];
+
+    fz_page *page = fz_load_page(ctx, doc, number);
+    fz_rect mediabox;
+    fz_stext_sheet *sheet = fz_new_stext_sheet(ctx);
+    fz_stext_page *text =
+        fz_new_stext_page(ctx, fz_bound_page(ctx, page, &mediabox));
+    fz_device *dev = fz_new_stext_device(ctx, sheet, text, NULL);
+    fz_run_page(ctx, page, dev, &fz_identity, cookie);
+    fz_close_device(ctx, dev);
+    fz_drop_device(ctx, dev);
+
+    int hit_count = fz_search_stext_page(ctx, text, needle, hit_bbox, nelem(hit_bbox));
+
+    fz_drop_stext_page(ctx, text);
+    fz_drop_stext_sheet(ctx, sheet);
+    fz_drop_page(ctx, page);
+
+    return hit_count;
+}
+
+static void releasePixmap(void *info, const void *data, size_t size)
+{
+    PDFContext *pCtx = PDFContext.sharedContext;
+    fz_context *ctx = pCtx.ctx;
+    dispatch_queue_t queue = pCtx.queue;
+
+    if (queue)
+        dispatch_async(queue, ^{
+            fz_drop_pixmap(ctx, info);
+        });
+    else {
+        fz_drop_pixmap(ctx, info);
+    }
+}
+
+CGDataProviderRef CreateWrappedPixmap(fz_pixmap *pix)
+{
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
+    unsigned char *samples = fz_pixmap_samples(ctx, pix);
+    int w = fz_pixmap_width(ctx, pix);
+    int h = fz_pixmap_height(ctx, pix);
+    return CGDataProviderCreateWithData(pix, samples, w * 4 * h, releasePixmap);
+}
+
+CGImageRef CreateCGImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata)
+{
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
+    int w = fz_pixmap_width(ctx, pix);
+    int h = fz_pixmap_height(ctx, pix);
+    CGColorSpaceRef cgcolor = CGColorSpaceCreateDeviceRGB();
+    CGImageRef cgimage =
+        CGImageCreate(w, h, 8, 32, 4 * w, cgcolor, kCGBitmapByteOrderDefault,
+                      cgdata, NULL, NO, kCGRenderingIntentDefault);
+    CGColorSpaceRelease(cgcolor);
+    return cgimage;
+}
+
 static UIImage *newImageWithPixmap(fz_pixmap *pix, CGFloat scale, CGDataProviderRef cgdata)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     CGImageRef cgimage = CreateCGImageWithPixmap(pix, cgdata);
     UIImage *image = [[UIImage alloc] initWithCGImage:cgimage
                                                 scale:scale
@@ -31,8 +98,10 @@ static UIImage *newImageWithPixmap(fz_pixmap *pix, CGFloat scale, CGDataProvider
     return image;
 }
 
-static NSArray *enumerateWidgetRects(fz_context *ctx, fz_document *doc, fz_page *page)
+static NSArray *enumerateWidgetRects(fz_document *doc, fz_page *page)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     pdf_document *idoc = pdf_specifics(ctx, doc);
     pdf_widget *widget;
     NSMutableArray *arr = [NSMutableArray arrayWithCapacity:10];
@@ -53,8 +122,10 @@ static NSArray *enumerateWidgetRects(fz_context *ctx, fz_document *doc, fz_page 
     return [arr retain];
 }
 
-static NSArray *enumerateAnnotations(fz_context *ctx, fz_document *doc, fz_page *page)
+static NSArray *enumerateAnnotations(fz_document *doc, fz_page *page)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     fz_annot *annot;
     NSMutableArray *arr = [NSMutableArray arrayWithCapacity:10];
 
@@ -65,7 +136,7 @@ static NSArray *enumerateAnnotations(fz_context *ctx, fz_document *doc, fz_page 
     return arr;
 }
 
-static NSArray *enumerateWords(fz_context *ctx, fz_document *doc, fz_page *page)
+static NSArray *enumerateWords(fz_document *doc, fz_page *page)
 {
     fz_stext_sheet *sheet = NULL;
     fz_stext_page *text = NULL;
@@ -76,6 +147,8 @@ static NSArray *enumerateWords(fz_context *ctx, fz_document *doc, fz_page *page)
 
     if (!lns)
         return NULL;
+
+    fz_context *ctx = PDFContext.sharedContext.ctx;
 
     fz_var(sheet);
     fz_var(text);
@@ -158,7 +231,7 @@ static NSArray *enumerateWords(fz_context *ctx, fz_document *doc, fz_page *page)
     return [lns retain];
 }
 
-static void addMarkupAnnot(fz_context *ctx, fz_document *doc, fz_page *page, int type, NSArray *rects)
+static void addMarkupAnnot(fz_document *doc, fz_page *page, int type, NSArray *rects)
 {
     pdf_document *idoc;
     float *quadpts = NULL;
@@ -166,6 +239,8 @@ static void addMarkupAnnot(fz_context *ctx, fz_document *doc, fz_page *page, int
     float alpha;
     float line_height;
     float line_thickness;
+
+    fz_context *ctx = PDFContext.sharedContext.ctx;
 
     idoc = pdf_specifics(ctx, doc);
     if (!idoc)
@@ -239,8 +314,10 @@ static void addMarkupAnnot(fz_context *ctx, fz_document *doc, fz_page *page, int
     }
 }
 
-static void addInkAnnot(fz_context *ctx, fz_document *doc, fz_page *page, NSArray *curves)
+static void addInkAnnot(fz_document *doc, fz_page *page, NSArray *curves)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     pdf_document *idoc;
     float *pts = NULL;
     int *counts = NULL;
@@ -300,9 +377,11 @@ static void addInkAnnot(fz_context *ctx, fz_document *doc, fz_page *page, NSArra
     }
 }
 
-static void deleteAnnotation(fz_context *ctx, fz_document *doc, fz_page *page, int index)
+static void deleteAnnotation(fz_document *doc, fz_page *page, int index)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
     pdf_document *idoc = pdf_specifics(ctx, doc);
+
     if (!idoc)
         return;
 
@@ -322,11 +401,11 @@ static void deleteAnnotation(fz_context *ctx, fz_document *doc, fz_page *page, i
     }
 }
 
-static int setFocussedWidgetText(fz_context *ctx, fz_document *doc, fz_page *page,
+static int setFocussedWidgetText(fz_document *doc, fz_page *page,
                                  const char *text)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
     int accepted = 0;
-
     fz_var(accepted);
 
     fz_try(ctx)
@@ -347,11 +426,11 @@ static int setFocussedWidgetText(fz_context *ctx, fz_document *doc, fz_page *pag
     return accepted;
 }
 
-static int setFocussedWidgetChoice(fz_context *ctx, fz_document *doc, fz_page *page,
+static int setFocussedWidgetChoice(fz_document *doc, fz_page *page,
                                    const char *text)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
     int accepted = 0;
-
     fz_var(accepted);
 
     fz_try(ctx)
@@ -373,9 +452,12 @@ static int setFocussedWidgetChoice(fz_context *ctx, fz_document *doc, fz_page *p
     return accepted;
 }
 
-static fz_display_list *create_page_list(fz_context *ctx, fz_document *doc, fz_page *page)
+static fz_display_list *create_page_list(fz_document *doc, fz_page *page)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     fz_display_list *list = NULL;
+
     fz_device *dev = NULL;
 
     fz_var(dev);
@@ -398,8 +480,10 @@ static fz_display_list *create_page_list(fz_context *ctx, fz_document *doc, fz_p
     return list;
 }
 
-static fz_display_list *create_annot_list(fz_context *ctx, fz_document *doc, fz_page *page)
+static fz_display_list *create_annot_list(fz_document *doc, fz_page *page)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     fz_display_list *list = NULL;
     fz_device *dev = NULL;
 
@@ -430,7 +514,7 @@ static fz_display_list *create_annot_list(fz_context *ctx, fz_document *doc, fz_
     return list;
 }
 
-static fz_pixmap *renderPixmap(fz_context *ctx, fz_document *doc, fz_display_list *page_list,
+static fz_pixmap *renderPixmap(fz_document *doc, fz_display_list *page_list,
                                fz_display_list *annot_list, CGSize pageSize,
                                CGSize screenSize, CGFloat screenScale, CGRect tileRect, float zoom)
 {
@@ -456,6 +540,8 @@ static fz_pixmap *renderPixmap(fz_context *ctx, fz_document *doc, fz_display_lis
     bbox.x1 = tileRect.origin.x + tileRect.size.width;
     bbox.y1 = tileRect.origin.y + tileRect.size.height;
     fz_rect_from_irect(&rect, &bbox);
+
+    fz_context *ctx = PDFContext.sharedContext.ctx;
 
     fz_var(dev);
     fz_var(pix);
@@ -491,8 +577,10 @@ struct rect_list_s
     rect_list *next;
 };
 
-static void drop_list(fz_context *ctx, rect_list *list)
+static void drop_list(rect_list *list)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     while (list) {
         rect_list *n = list->next;
         fz_free(ctx, list);
@@ -500,8 +588,10 @@ static void drop_list(fz_context *ctx, rect_list *list)
     }
 }
 
-static rect_list *updatePage(fz_context *ctx, fz_document *doc, fz_page *page)
+static rect_list *updatePage(fz_document *doc, fz_page *page)
 {
+    fz_context *ctx = PDFContext.sharedContext.ctx;
+
     rect_list *list = NULL;
 
     fz_var(list);
@@ -526,30 +616,32 @@ static rect_list *updatePage(fz_context *ctx, fz_document *doc, fz_page *page)
     }
     fz_catch(ctx)
     {
-        drop_list(ctx, list);
+        drop_list(list);
         list = NULL;
     }
 
     return list;
 }
 
-static void updatePixmap(fz_context *ctx,
-                         fz_document *doc,
-                         fz_display_list *page_list,
-                         fz_display_list *annot_list,
-                         fz_pixmap *pixmap,
-                         rect_list *rlist,
-                         CGSize pageSize,
-                         CGSize screenSize,
-                         CGFloat screenScale,
-                         CGRect tileRect,
-                         float zoom)
+static void updatePixmap(
+    fz_document *doc,
+    fz_display_list *page_list,
+    fz_display_list *annot_list,
+    fz_pixmap *pixmap,
+    rect_list *rlist,
+    CGSize pageSize,
+    CGSize screenSize,
+    CGFloat screenScale,
+    CGRect tileRect,
+    float zoom)
 {
     fz_irect bbox;
     fz_rect rect;
     fz_matrix ctm;
     fz_device *dev = NULL;
     CGSize scale;
+
+    fz_context *ctx = PDFContext.sharedContext.ctx;
 
     screenSize.width *= screenScale;
     screenSize.height *= screenScale;
