@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPath:(NSString *)path;
 
+- (void)open;
+- (void)close;
 
 @end
 
