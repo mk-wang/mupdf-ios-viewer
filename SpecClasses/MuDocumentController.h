@@ -4,8 +4,6 @@
 #undef MIN
 #undef MAX
 
-#include "mupdf/fitz.h"
-
 #import "MuOutlineController.h"
 #import "MuDocRef.h"
 #import "MuDialogCreator.h"
@@ -23,6 +21,9 @@ enum
 	BARMODE_INK,
 	BARMODE_DELETE
 };
+
+
+void asdf();
 
 @interface MuDocumentController : UIViewController <UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, MuDialogCreator, MuUpdater>
 - (instancetype) initWithFilename: (NSString*)nsfilename path:(NSString *)path document:(MuDocRef *)aDoc;

@@ -18,13 +18,25 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |ss|
     ss.vendored_libraries = "libs/*.a"
     ss.source_files = 'libmupdf/include/**/*.h'
+    ss.private_header_files = 'libmupdf/include/**/*.h'
     ss.header_mappings_dir = 'libmupdf/include/mupdf'
+    #ss.source_files = 'OC/**/*.{h,m,c}', 'libmupdf/include/**/*.h'
   end
 
   s.subspec 'View' do |ss|
     ss.requires_arc= false
     ss.dependency 'MuPDF/Core'
     ss.source_files = 'SpecClasses/**/*.{h,m}'
+    ss.project_header_files = 'SpecClasses/common.h'
+    ss.resources = 'resources/**/*.png'
+  end
+  
+  s.subspec 'YX' do |ss|
+    ss.requires_arc= false
+    ss.dependency 'MuPDF/Core'
+    ss.source_files = 'YX/**/*.{h,m,swift}'
+    ss.project_header_files = 'YX/OC/**/*_Private.h', 'YX/OC/Private/**/*.h'
+    ss.resources = 'resources/**/*.png'
   end
 end
 

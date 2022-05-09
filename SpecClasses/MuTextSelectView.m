@@ -1,4 +1,4 @@
-#include "common.h"
+#import "common.h"
 #import "MuTextSelectView.h"
 #import "MuWord.h"
 

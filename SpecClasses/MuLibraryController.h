@@ -4,8 +4,6 @@
 #undef MIN
 #undef MAX
 
-#include "mupdf/fitz.h"
-
 #import "MuDocRef.h"
 
 @interface MuLibraryController : UITableViewController <UIActionSheetDelegate>

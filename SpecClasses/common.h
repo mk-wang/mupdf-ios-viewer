@@ -1,13 +1,14 @@
 #ifndef MuPDF_common_h
 #define MuPDF_common_h
 
-#include <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 
 #undef ABS
 #undef MIN
 #undef MAX
 
-#include "mupdf/fitz.h"
+#import "mupdf/fitz.h"
+#import "mupdf/pdf.h"
 
 extern fz_context *ctx;
 extern dispatch_queue_t queue;

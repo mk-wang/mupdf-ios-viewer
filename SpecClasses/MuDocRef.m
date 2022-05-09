@@ -1,5 +1,5 @@
-#include "common.h"
-#include "mupdf/pdf.h"
+#import "common.h"
+#import "mupdf/pdf.h"
 #import "MuDocRef.h"
 
 @implementation MuDocRef

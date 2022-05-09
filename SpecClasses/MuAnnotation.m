@@ -1,4 +1,6 @@
 #import "MuAnnotation.h"
+#include "common.h"
+#include "mupdf/pdf.h"
 
 @implementation MuAnnotation
 {
@@ -8,7 +10,7 @@
 
 @synthesize type, rect;
 
--(instancetype) initFromAnnot:(fz_annot *)annot;
+-(instancetype) initFromAnnot:(void *)annot;
 {
 	self = [super init];
 	if (self)
@@ -24,7 +26,7 @@
 	return self;
 }
 
-+(MuAnnotation *) annotFromAnnot:(fz_annot *)annot;
++(MuAnnotation *) annotFromAnnot:(void *)annot;
 {
 	return [[[MuAnnotation alloc] initFromAnnot:annot] autorelease];
 }

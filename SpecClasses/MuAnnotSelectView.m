@@ -1,4 +1,5 @@
 #import "MuAnnotSelectView.h"
+#import "common.h"
 
 @implementation MuAnnotSelectView
 {
@@ -29,11 +30,10 @@
 
 - (void)drawRect:(CGRect)rect
 {
-	CGSize scale = fitPageToScreen(pageSize, self.bounds.size);
+    CGSize scale = fitPageToScreen(pageSize, self.bounds.size);
 	CGContextRef cref = UIGraphicsGetCurrentContext();
 	CGContextScaleCTM(cref, scale.width, scale.height);
 	[color set];
 	CGContextStrokeRect(cref, annot.rect);
 }
-
 @end

@@ -4,8 +4,6 @@
 #undef MIN
 #undef MAX
 
-#include "mupdf/fitz.h"
-
 #import "MuHitView.h"
 #import "MuPageView.h"
 #import "MuDocRef.h"

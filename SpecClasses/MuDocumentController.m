@@ -1,4 +1,4 @@
-#include "common.h"
+#import "common.h"
 
 #import "MuPageViewNormal.h"
 #import "MuPageViewReflow.h"
@@ -1180,3 +1180,12 @@ static void saveDoc(const char *current_path, fz_document *doc)
 }
 
 @end
+
+void asdf() {
+    if (queue == nil) {
+        queue = dispatch_queue_create("com.artifex.mupdf.queue", NULL);
+        
+        ctx = fz_new_context(NULL, NULL, 128<<20);
+        fz_register_document_handlers(ctx);
+    }
+}

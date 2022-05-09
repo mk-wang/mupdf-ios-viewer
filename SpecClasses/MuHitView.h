@@ -5,11 +5,9 @@
 #undef MIN
 #undef MAX
 
-#include "mupdf/fitz.h"
-
 @interface MuHitView : UIView
-- (instancetype) initWithSearchResults: (int)n forDocument: (fz_document *)doc;
-- (instancetype) initWithLinks: (fz_link*)links forDocument: (fz_document *)doc;
+- (instancetype) initWithSearchResults: (int)n forDocument: (void *)doc;
+- (instancetype) initWithLinks: (void*)links forDocument: (void *)doc;
 - (void) setPageSize: (CGSize)s;
 - (MuTapResult *) handleTap:(CGPoint)pt;
 @end
