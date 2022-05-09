@@ -1,132 +1,158 @@
 #import "MuTapResult.h"
 
 @implementation MuTapResult
--(void) switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock caseWidget:(void (^)(MuTapResultWidget *))widgetBlock caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock {}
+- (void)
+    switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock
+          caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock
+            caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock
+            caseWidget:(void (^)(MuTapResultWidget *))widgetBlock
+        caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
+{
+}
 @end
 
-@implementation MuTapResultInternalLink
-{
-	int pageNumber;
+@implementation MuTapResultInternalLink {
+    int pageNumber;
 }
 
 @synthesize pageNumber;
 
--(instancetype) initWithPageNumber:(int)aNumber
+- (instancetype)initWithPageNumber:(int)aNumber
 {
-	self = [super init];
-	if (self)
-	{
-		pageNumber = aNumber;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        pageNumber = aNumber;
+    }
+    return self;
 }
 
--(void) switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock caseWidget:(void (^)(MuTapResultWidget *))widgetBlock caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
+- (void)
+    switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock
+          caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock
+            caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock
+            caseWidget:(void (^)(MuTapResultWidget *))widgetBlock
+        caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
 {
-	internalLinkBlock(self);
+    internalLinkBlock(self);
 }
 
 @end
 
-@implementation MuTapResultExternalLink
-{
-	NSString *url;
+@implementation MuTapResultExternalLink {
+    NSString *url;
 }
 
 @synthesize url;
 
--(instancetype) initWithUrl:(NSString *)aString
+- (instancetype)initWithUrl:(NSString *)aString
 {
-	self = [super init];
-	if (self)
-	{
-		url = [aString retain];
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        url = [aString retain];
+    }
+    return self;
 }
 
--(void) dealloc
+- (void)dealloc
 {
-	[url release];
-	[super dealloc];
+    [url release];
+    [super dealloc];
 }
 
--(void) switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock caseWidget:(void (^)(MuTapResultWidget *))widgetBlock caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
+- (void)
+    switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock
+          caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock
+            caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock
+            caseWidget:(void (^)(MuTapResultWidget *))widgetBlock
+        caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
 {
-	externalLinkBlock(self);
+    externalLinkBlock(self);
 }
 
 @end
 
-@implementation MuTapResultRemoteLink
-{
-	NSString *fileSpec;
-	int pageNumber;
-	BOOL newWindow;
+@implementation MuTapResultRemoteLink {
+    NSString *fileSpec;
+    int pageNumber;
+    BOOL newWindow;
 }
 
 @synthesize fileSpec, pageNumber, newWindow;
 
--(instancetype) initWithFileSpec:(NSString *)aString pageNumber:(int)aNumber newWindow:(BOOL)aBool
+- (instancetype)initWithFileSpec:(NSString *)aString
+                      pageNumber:(int)aNumber
+                       newWindow:(BOOL)aBool
 {
-	self = [super init];
-	if (self)
-	{
-		fileSpec = [aString retain];
-		pageNumber = aNumber;
-		newWindow = aBool;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        fileSpec = [aString retain];
+        pageNumber = aNumber;
+        newWindow = aBool;
+    }
+    return self;
 }
 
--(void) dealloc
+- (void)dealloc
 {
-	[fileSpec release];
-	[super dealloc];
+    [fileSpec release];
+    [super dealloc];
 }
 
--(void) switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock caseWidget:(void (^)(MuTapResultWidget *))widgetBlock caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
+- (void)
+    switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock
+          caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock
+            caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock
+            caseWidget:(void (^)(MuTapResultWidget *))widgetBlock
+        caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
 {
-	remoteLinkBlock(self);
+    remoteLinkBlock(self);
 }
 
 @end
 
 @implementation MuTapResultWidget
 
--(void) switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock caseWidget:(void (^)(MuTapResultWidget *))widgetBlock caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
+- (void)
+    switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock
+          caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock
+            caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock
+            caseWidget:(void (^)(MuTapResultWidget *))widgetBlock
+        caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
 {
-	widgetBlock(self);
+    widgetBlock(self);
 }
 
 @end
 
-@implementation MuTapResultAnnotation
-{
-	MuAnnotation *annot;
+@implementation MuTapResultAnnotation {
+    MuAnnotation *annot;
 }
 
 @synthesize annot;
 
--(instancetype) initWithAnnotation:(MuAnnotation *)aAnnot
+- (instancetype)initWithAnnotation:(MuAnnotation *)aAnnot
 {
-	self = [super init];
-	if (self)
-	{
-		annot = [aAnnot retain];
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        annot = [aAnnot retain];
+    }
+    return self;
 }
 
--(void) dealloc
+- (void)dealloc
 {
-	[annot release];
-	[super dealloc];
+    [annot release];
+    [super dealloc];
 }
 
--(void) switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock caseWidget:(void (^)(MuTapResultWidget *))widgetBlock caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
+- (void)
+    switchCaseInternal:(void (^)(MuTapResultInternalLink *))internalLinkBlock
+          caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock
+            caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock
+            caseWidget:(void (^)(MuTapResultWidget *))widgetBlock
+        caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock
 {
-	annotationBlock(self);
+    annotationBlock(self);
 }
 
 @end

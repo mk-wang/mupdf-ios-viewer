@@ -10,16 +10,14 @@
 
 @implementation PDFAnnotation
 
-
--(instancetype) initFromAnnot:(void *)annot;
+- (instancetype)initFromAnnot:(void *)annot
 {
     self = [super init];
-    if (self)
-    {
-        _annot =  (pdf_annot *)annot;
+    if (self) {
+        _annot = (pdf_annot *)annot;
         fz_context *ctx = PDFContext.sharedContext.ctx;
         _type = pdf_annot_type(ctx, _annot);
-        
+
         fz_rect frect;
         fz_bound_annot(ctx, annot, &frect);
         _rect.origin.x = frect.x0;
@@ -29,6 +27,5 @@
     }
     return self;
 }
-
 
 @end

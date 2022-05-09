@@ -8,13 +8,12 @@
 #ifndef PDFAnnotation_Private_h
 #define PDFAnnotation_Private_h
 
+#include "PDFCommon.h"
 #import "PDFAnnotation.h"
-#include "Common_Private.h"
 
+@interface PDFAnnotation ()
 
-@interface PDFAnnotation()
-
-@property (nonatomic, assign) pdf_annot* annot;
+@property (nonatomic, assign) pdf_annot *annot;
 
 @end
 

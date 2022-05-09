@@ -1,97 +1,89 @@
 #import "MuWord.h"
 
-@implementation MuWord
-{
-	NSMutableString *string;
-	CGRect rect;
+@implementation MuWord {
+    NSMutableString *string;
+    CGRect rect;
 }
 
 @synthesize string, rect;
 
-- (instancetype) init
+- (instancetype)init
 {
-	self = [super init];
-	if (self)
-	{
-		self.string = [NSMutableString string];
-		self.rect = CGRectNull;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.string = [NSMutableString string];
+        self.rect = CGRectNull;
+    }
+    return self;
 }
 
-- (void) dealloc
+- (void)dealloc
 {
-	self.string = nil;
-	[super dealloc];
+    self.string = nil;
+    [super dealloc];
 }
 
-+ (MuWord *) word
++ (MuWord *)word
 {
-	return [[[MuWord alloc] init] autorelease];
+    return [[[MuWord alloc] init] autorelease];
 }
 
-- (void) appendChar:(unichar)c withRect:(CGRect)_rect
+- (void)appendChar:(unichar)c withRect:(CGRect)_rect
 {
-	[string appendFormat:@"%C", c];
-	rect = CGRectUnion(rect, _rect);
+    [string appendFormat:@"%C", c];
+    rect = CGRectUnion(rect, _rect);
 }
 
-+ (void) selectFrom:(CGPoint)pt1 to:(CGPoint)pt2 fromWords:(NSArray *)words onStartLine:(void (^)(void))startBlock onWord:(void (^)(MuWord *))wordBlock onEndLine:(void (^)(void))endBLock
++ (void)selectFrom:(CGPoint)pt1
+                to:(CGPoint)pt2
+         fromWords:(NSArray *)words
+       onStartLine:(void (^)(void))startBlock
+            onWord:(void (^)(MuWord *))wordBlock
+         onEndLine:(void (^)(void))endBLock
 {
-	CGPoint toppt, botpt;
+    CGPoint toppt, botpt;
 
-	if (pt1.y < pt2.y)
-	{
-		toppt = pt1;
-		botpt = pt2;
-	}
-	else
-	{
-		toppt = pt2;
-		botpt = pt1;
-	}
+    if (pt1.y < pt2.y) {
+        toppt = pt1;
+        botpt = pt2;
+    } else {
+        toppt = pt2;
+        botpt = pt1;
+    }
 
-	for (NSArray *line in words)
-	{
-		MuWord *fst = line[0];
-		float ltop = fst.rect.origin.y;
-		float lbot = ltop + fst.rect.size.height;
+    for (NSArray *line in words) {
+        MuWord *fst = line[0];
+        float ltop = fst.rect.origin.y;
+        float lbot = ltop + fst.rect.size.height;
 
-		if (toppt.y < lbot && ltop < botpt.y)
-		{
-			BOOL topline = toppt.y > ltop;
-			BOOL botline = botpt.y < lbot;
-			float left = -INFINITY;
-			float right = INFINITY;
+        if (toppt.y < lbot && ltop < botpt.y) {
+            BOOL topline = toppt.y > ltop;
+            BOOL botline = botpt.y < lbot;
+            float left = -INFINITY;
+            float right = INFINITY;
 
-			if (topline && botline)
-			{
-				left = MIN(toppt.x, botpt.x);
-				right = MAX(toppt.x, botpt.x);
-			}
-			else if (topline)
-			{
-				left = toppt.x;
-			}
-			else if (botline)
-			{
-				right = botpt.x;
-			}
+            if (topline && botline) {
+                left = MIN(toppt.x, botpt.x);
+                right = MAX(toppt.x, botpt.x);
+            } else if (topline) {
+                left = toppt.x;
+            } else if (botline) {
+                right = botpt.x;
+            }
 
-			startBlock();
+            startBlock();
 
-			for (MuWord *word in line)
-			{
-				float wleft = word.rect.origin.x;
-				float wright = wleft + word.rect.size.width;
+            for (MuWord *word in line) {
+                float wleft = word.rect.origin.x;
+                float wright = wleft + word.rect.size.width;
 
-				if (wright > left && wleft < right)
-					wordBlock(word);
-			}
+                if (wright > left && wleft < right)
+                    wordBlock(word);
+            }
 
-			endBLock();
-		}
-	}
+            endBLock();
+        }
+    }
 }
 
 @end

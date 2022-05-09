@@ -11,10 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PDFAnnotation : NSObject
 
-@property(readonly) int type;
-@property(readonly) CGRect rect;
+@property (readonly) int type;
+@property (readonly) CGRect rect;
 
--(instancetype)initFromAnnot:(void *)annot;
+- (instancetype)initFromAnnot:(void *)annot;
 
 @end
 

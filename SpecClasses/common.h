@@ -24,6 +24,6 @@ CGDataProviderRef CreateWrappedPixmap(fz_pixmap *pix);
 
 CGImageRef CreateCGImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata);
 
-fz_context* CreateContext(size_t maxStore);
+fz_context *CreateContext(size_t maxStore);
 
 #endif

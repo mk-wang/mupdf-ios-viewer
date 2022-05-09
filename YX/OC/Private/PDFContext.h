@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "Common_Private.h"
+#import "PDFCommon.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

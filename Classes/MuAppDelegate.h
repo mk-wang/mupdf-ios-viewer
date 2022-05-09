@@ -4,7 +4,7 @@
 
 enum
 {
-	ResourceCacheMaxSize = 128<<20	/**< use at most 128M for resource cache */
+    ResourceCacheMaxSize = 128 << 20 /**< use at most 128M for resource cache */
 };
 
 @interface MuAppDelegate : NSObject <UIApplicationDelegate>

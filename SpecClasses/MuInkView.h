@@ -2,8 +2,8 @@
 
 @interface MuInkView : UIView
 
-@property(readonly) NSArray *curves;
+@property (readonly) NSArray *curves;
 
-- (instancetype) initWithPageSize:(CGSize)pageSize;
+- (instancetype)initWithPageSize:(CGSize)pageSize;
 
 @end

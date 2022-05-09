@@ -8,52 +8,51 @@
 
 @end
 
-@implementation MuTextFieldController
-{
-	void (^okayBlock)(NSString *);
-	NSString *initialText;
+@implementation MuTextFieldController {
+    void (^okayBlock)(NSString *);
+    NSString *initialText;
 }
 
--(instancetype)initWithText:(NSString *)text okayAction:(void (^)(NSString *))block
+- (instancetype)initWithText:(NSString *)text
+                  okayAction:(void (^)(NSString *))block
 {
-	self = [super initWithNibName:@"MuTextFieldController" bundle:nil];
-	if (self)
-	{
-		okayBlock = Block_copy(block);
-		initialText = [text retain];
-	}
-	return self;
+    self = [super initWithNibName:@"MuTextFieldController" bundle:nil];
+    if (self) {
+        okayBlock = Block_copy(block);
+        initialText = [text retain];
+    }
+    return self;
 }
 
 - (void)viewDidLoad
 {
-	[super viewDidLoad];
-	_textView.text = initialText;
-	[_textView becomeFirstResponder];
+    [super viewDidLoad];
+    _textView.text = initialText;
+    [_textView becomeFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning
 {
-	[super didReceiveMemoryWarning];
+    [super didReceiveMemoryWarning];
 }
 
 - (void)dealloc
 {
-	[okayBlock release];
-	[initialText release];
-	[_navBar release];
-	[_textView release];
-	[super dealloc];
+    [okayBlock release];
+    [initialText release];
+    [_navBar release];
+    [_textView release];
+    [super dealloc];
 }
 
 - (IBAction)onOkay:(id)sender
 {
-	okayBlock(_textView.text);
-	[self dismissViewControllerAnimated:YES completion:nil];
+    okayBlock(_textView.text);
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)onCancel:(id)sender
 {
-	[self dismissViewControllerAnimated:YES completion:nil];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 @end

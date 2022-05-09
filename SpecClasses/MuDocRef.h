@@ -1,10 +1,9 @@
 #import <Foundation/Foundation.h>
 
-@interface MuDocRef : NSObject
-{
+@interface MuDocRef : NSObject {
 @public
-	void *doc;
-	bool interactive;
+    void *doc;
+    bool interactive;
 }
--(instancetype) initWithFilename:(NSString *)aFilename;
+- (instancetype)initWithFilename:(NSString *)aFilename;
 @end

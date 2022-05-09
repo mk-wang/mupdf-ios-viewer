@@ -1,203 +1,202 @@
-#include "common.h"
 #import "MuPrintPageRenderer.h"
+#include "common.h"
 
-const int MaxStripPixels = 1024*1024;
+const int MaxStripPixels = 1024 * 1024;
 
-@implementation MuPrintPageRenderer
-{
-	MuDocRef *docRef;
+@implementation MuPrintPageRenderer {
+    MuDocRef *docRef;
 }
 
--(instancetype) initWithDocRef:(MuDocRef *)aDocRef
+- (instancetype)initWithDocRef:(MuDocRef *)aDocRef
 {
-	self = [super init];
-	if (self)
-	{
-		docRef = [aDocRef retain];
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        docRef = [aDocRef retain];
+    }
+    return self;
 }
 
--(void) dealloc
+- (void)dealloc
 {
-	[docRef release];
-	[super dealloc];
+    [docRef release];
+    [super dealloc];
 }
 
--(NSInteger) numberOfPages
+- (NSInteger)numberOfPages
 {
-	__block NSInteger npages = 0;
-	dispatch_sync(queue, ^{
+    __block NSInteger npages = 0;
+        dispatch_sync(queue, ^{
 		fz_try(ctx)
 		{
 			npages = fz_count_pages(ctx, docRef->doc);
-		}
-		fz_catch(ctx)
-		{
-		}
-	});
-	return npages;
+}
+fz_catch(ctx) {}
+});
+return npages;
 }
 
 static fz_page *getPage(fz_document *doc, NSInteger pageIndex)
 {
-	__block fz_page *page = NULL;
+    __block fz_page *page = NULL;
 
-	dispatch_sync(queue, ^{
+        dispatch_sync(queue, ^{
 		fz_try(ctx)
 		{
 			page = fz_load_page(ctx, doc, (int)pageIndex);
-		}
-		fz_catch(ctx)
-		{
-			printf("Failed to load page\n");
-		}
-	});
+}
+fz_catch(ctx)
+{
+    printf("Failed to load page\n");
+}
+});
 
-	return page;
+return page;
 }
 
 static CGSize getPageSize(fz_document *doc, fz_page *page)
 {
-	__block CGSize size = {0.0,0.0};
+    __block CGSize size = {0.0, 0.0};
 
-	dispatch_sync(queue, ^{
+        dispatch_sync(queue, ^{
 		fz_try(ctx)
 		{
 			fz_rect bounds;
 			fz_bound_page(ctx, page, &bounds);
 			size.width = bounds.x1 - bounds.x0;
 			size.height = bounds.y1 - bounds.y0;
-		}
-		fz_catch(ctx)
-		{
-			printf("Failed to find page bounds\n");
-		}
-	});
+}
+fz_catch(ctx)
+{
+    printf("Failed to find page bounds\n");
+}
+});
 
-	return size;
+return size;
 }
 
 static fz_pixmap *createPixMap(CGSize size)
 {
-	__block fz_pixmap *pix = NULL;
+    __block fz_pixmap *pix = NULL;
 
-	dispatch_sync(queue, ^{
+        dispatch_sync(queue, ^{
 		fz_try(ctx)
 		{
 			pix = fz_new_pixmap(ctx, fz_device_rgb(ctx), size.width, size.height, 1);
-		}
-		fz_catch(ctx)
-		{
-			printf("Failed to create pixmap\n");
-		}
-	});
+}
+fz_catch(ctx)
+{
+    printf("Failed to create pixmap\n");
+}
+});
 
-	return pix;
+return pix;
 }
 
 static void freePage(fz_document *doc, fz_page *page)
 {
-	dispatch_sync(queue, ^{
-		fz_drop_page(ctx, page);
-	});
+    dispatch_sync(queue, ^{
+        fz_drop_page(ctx, page);
+    });
 }
 
-static void renderPage(fz_document *doc, fz_page *page, fz_pixmap *pix, fz_matrix *ctm)
+static void renderPage(fz_document *doc, fz_page *page, fz_pixmap *pix,
+                       fz_matrix *ctm)
 {
-	dispatch_sync(queue, ^{
-		fz_device *dev = NULL;
-		fz_var(dev);
-		fz_try(ctx)
-		{
-			dev = fz_new_draw_device(ctx, ctm, pix);
-			fz_clear_pixmap_with_value(ctx, pix, 0xFF);
-			fz_run_page(ctx, page, dev, &fz_identity, NULL);
-			fz_close_device(ctx, dev);
-		}
-		fz_always(ctx)
-		{
-			fz_drop_device(ctx, dev);
-		}
-		fz_catch(ctx)
-		{
-			printf("Failed to render page\n");
-		}
-	});
+    dispatch_sync(queue, ^{
+        fz_device *dev = NULL;
+        fz_var(dev);
+        fz_try(ctx)
+        {
+            dev = fz_new_draw_device(ctx, ctm, pix);
+            fz_clear_pixmap_with_value(ctx, pix, 0xFF);
+            fz_run_page(ctx, page, dev, &fz_identity, NULL);
+            fz_close_device(ctx, dev);
+        }
+        fz_always(ctx)
+        {
+            fz_drop_device(ctx, dev);
+        }
+        fz_catch(ctx)
+        {
+            printf("Failed to render page\n");
+        }
+    });
 }
 
--(void) drawPageAtIndex:(NSInteger)pageIndex inRect:(CGRect)printableRect
+- (void)drawPageAtIndex:(NSInteger)pageIndex inRect:(CGRect)printableRect
 {
-	fz_page *page = NULL;
-	fz_pixmap *pix = NULL;
-	CGDataProviderRef dataref = NULL;
-	CGImageRef img = NULL;
-	CGContextRef cgctx = UIGraphicsGetCurrentContext();
-	float dpi = 300.0;
-	float ppi = 72.0;
+    fz_page *page = NULL;
+    fz_pixmap *pix = NULL;
+    CGDataProviderRef dataref = NULL;
+    CGImageRef img = NULL;
+    CGContextRef cgctx = UIGraphicsGetCurrentContext();
+    float dpi = 300.0;
+    float ppi = 72.0;
 
-	if (!cgctx) return;
+    if (!cgctx)
+        return;
 
-	CGSize paperSize = self.paperRect.size;
-	page = getPage(docRef->doc, pageIndex);
-	if (page == NULL) return;
+    CGSize paperSize = self.paperRect.size;
+    page = getPage(docRef->doc, pageIndex);
+    if (page == NULL)
+        return;
 
-	CGSize pageSize = getPageSize(docRef->doc, page);
-	if (pageSize.width == 0.0 || pageSize.height == 0.0)
-		goto exit;
+    CGSize pageSize = getPageSize(docRef->doc, page);
+    if (pageSize.width == 0.0 || pageSize.height == 0.0)
+        goto exit;
 
-	CGSize scale = fitPageToScreen(pageSize, paperSize);
-	pageSize.width *= scale.width;
-	pageSize.height *= scale.height;
+    CGSize scale = fitPageToScreen(pageSize, paperSize);
+    pageSize.width *= scale.width;
+    pageSize.height *= scale.height;
 
-	CGSize pageSizePix = {roundf(pageSize.width * dpi / ppi), roundf(pageSize.height * dpi /ppi)};
-	int max_strip_height = MaxStripPixels / (int)pageSizePix.width;
-	if (pageSizePix.height > max_strip_height)
-		pageSizePix.height = max_strip_height;
-	CGSize stripSize = {pageSize.width, pageSizePix.height * ppi / dpi};
+    CGSize pageSizePix = {roundf(pageSize.width * dpi / ppi),
+                          roundf(pageSize.height * dpi / ppi)};
+    int max_strip_height = MaxStripPixels / (int)pageSizePix.width;
+    if (pageSizePix.height > max_strip_height)
+        pageSizePix.height = max_strip_height;
+    CGSize stripSize = {pageSize.width, pageSizePix.height * ppi / dpi};
 
-	float cursor = 0.0;
+    float cursor = 0.0;
 
-	while (cursor < pageSize.height)
-	{
-		// Overlap strips by 1 point
-		if (cursor > 0.0)
-			cursor -= 1.0;
+    while (cursor < pageSize.height) {
+        // Overlap strips by 1 point
+        if (cursor > 0.0)
+            cursor -= 1.0;
 
-		pix = createPixMap(pageSizePix);
-		if (!pix)
-			goto exit;
+        pix = createPixMap(pageSizePix);
+        if (!pix)
+            goto exit;
 
-		dataref = CreateWrappedPixmap(pix);
-		if (dataref == NULL)
-			goto exit;
+        dataref = CreateWrappedPixmap(pix);
+        if (dataref == NULL)
+            goto exit;
 
-		img = CreateCGImageWithPixmap(pix, dataref);
-		if (img == NULL)
-			goto exit;
+        img = CreateCGImageWithPixmap(pix, dataref);
+        if (img == NULL)
+            goto exit;
 
-		fz_matrix ctm;
-		fz_scale(&ctm, dpi / ppi, -dpi / ppi);
-		fz_pre_translate(&ctm, 0, -stripSize.height-cursor);
-		fz_pre_scale(&ctm, scale.width, scale.height);
+        fz_matrix ctm;
+        fz_scale(&ctm, dpi / ppi, -dpi / ppi);
+        fz_pre_translate(&ctm, 0, -stripSize.height - cursor);
+        fz_pre_scale(&ctm, scale.width, scale.height);
 
-		renderPage(docRef->doc, page, pix, &ctm);
+        renderPage(docRef->doc, page, pix, &ctm);
 
-		CGRect rect = {{0.0,cursor},stripSize};
-		CGContextDrawImage(cgctx, rect, img);
+        CGRect rect = {{0.0, cursor}, stripSize};
+        CGContextDrawImage(cgctx, rect, img);
 
-		CGImageRelease(img);
-		img = NULL;
-		CGDataProviderRelease(dataref); // releases pix
-		dataref = NULL;
+        CGImageRelease(img);
+        img = NULL;
+        CGDataProviderRelease(dataref); // releases pix
+        dataref = NULL;
 
-		cursor += stripSize.height;
-	}
+        cursor += stripSize.height;
+    }
 
 exit:
-	freePage(docRef->doc, page);
-	CGImageRelease(img);
-	CGDataProviderRelease(dataref); //releases pix
+    freePage(docRef->doc, page);
+    CGImageRelease(img);
+    CGDataProviderRelease(dataref); // releases pix
 }
 
 @end

@@ -1,12 +1,12 @@
 //
-//  Common_Private.h
+//  PDFCommon.h
 //  Pods
 //
 //  Created by MK on 2022/5/9.
 //
 
-#ifndef Common_Private_h
-#define Common_Private_h
+#ifndef PDFCommon_h
+#define PDFCommon_h
 
 #import <UIKit/UIKit.h>
 
@@ -17,4 +17,4 @@
 #import "mupdf/fitz.h"
 #import "mupdf/pdf.h"
 
-#endif /* Private_h */
+#endif /* PDFCommon */

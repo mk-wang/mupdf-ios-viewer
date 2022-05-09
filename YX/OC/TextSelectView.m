@@ -1,40 +1,40 @@
-#import "MuTextSelectView.h"
-#import "MuWord.h"
-#import "common.h"
+//
+//  PDFTextSelectView.m
+//  MuPDF
+//
+//  Created by MK on 2022/5/9.
+//
 
-@implementation MuTextSelectView {
-    NSArray *words;
-    CGSize pageSize;
-    UIColor *color;
-    CGPoint start;
-    CGPoint end;
+#import "TextSelectView.h"
+#import "PDFUtils.h"
+#import "PDFWord.h"
+
+@implementation TextSelectView {
+    NSArray *_words;
+    CGSize _pageSize;
+    UIColor *_color;
+    CGPoint _start;
+    CGPoint _end;
 }
 
-- (instancetype)initWithWords:(NSArray *)_words pageSize:(CGSize)_pageSize
+- (instancetype)initWithWords:(NSArray *)words
+                     pageSize:(CGSize)pageSize;
 {
-    self = [super initWithFrame:CGRectMake(0, 0, 100, 100)];
+    self = [super init];
     if (self) {
         [self setOpaque:NO];
-        words = [_words retain];
-        pageSize = _pageSize;
-        color = [[UIColor colorWithRed:0x25 / 255.0
+        _words = [words copy];
+        _pageSize = pageSize;
+        _color = [UIColor colorWithRed:0x25 / 255.0
                                  green:0x72 / 255.0
                                   blue:0xAC / 255.0
-                                 alpha:0.5] retain];
+                                 alpha:0.5];
         UIPanGestureRecognizer *rec =
             [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                     action:@selector(onDrag:)];
         [self addGestureRecognizer:rec];
-        [rec release];
     }
     return self;
-}
-
-- (void)dealloc
-{
-    [words release];
-    [color release];
-    [super dealloc];
 }
 
 - (NSArray *)selectionRects
@@ -42,13 +42,13 @@
     NSMutableArray *arr = [NSMutableArray array];
     __block CGRect r;
 
-    [MuWord selectFrom:start
-        to:end
-        fromWords:words
+    [PDFWord selectFrom:_start
+        to:_end
+        fromWords:_words
         onStartLine:^{
             r = CGRectNull;
         }
-        onWord:^(MuWord *w) {
+        onWord:^(PDFWord *w) {
             r = CGRectUnion(r, w.rect);
         }
         onEndLine:^{
@@ -61,19 +61,19 @@
 
 - (NSString *)selectedText
 {
-    __block NSMutableString *text = [NSMutableString string];
-    __block NSMutableString *line;
+    NSMutableString *text = [NSMutableString string];
+    NSMutableString *line = [NSMutableString string];
 
-    [MuWord selectFrom:start
-        to:end
-        fromWords:words
+    [PDFWord selectFrom:_start
+        to:_end
+        fromWords:_words
         onStartLine:^{
-            line = [NSMutableString string];
+            line.string = @"";
         }
-        onWord:^(MuWord *w) {
+        onWord:^(PDFWord *w) {
             if (line.length > 0)
                 [line appendString:@" "];
-            [line appendString:w.string];
+            [line appendString:w.text];
         }
         onEndLine:^{
             if (text.length > 0)
@@ -86,35 +86,37 @@
 
 - (void)onDrag:(UIPanGestureRecognizer *)rec
 {
-    CGSize scale = fitPageToScreen(pageSize, self.bounds.size);
+    CGSize scale = [PDFUtils fit:_pageSize to:self.bounds.size];
+
     CGPoint p = [rec locationInView:self];
     p.x /= scale.width;
     p.y /= scale.height;
 
     if (rec.state == UIGestureRecognizerStateBegan)
-        start = p;
+        _start = p;
 
-    end = p;
+    _end = p;
 
     [self setNeedsDisplay];
 }
 
 - (void)drawRect:(CGRect)rect
 {
-    CGSize scale = fitPageToScreen(pageSize, self.bounds.size);
+    CGSize scale = [PDFUtils fit:_pageSize to:self.bounds.size];
+
     CGContextRef cref = UIGraphicsGetCurrentContext();
     CGContextScaleCTM(cref, scale.width, scale.height);
     __block CGRect r;
 
-    [color set];
+    [_color set];
 
-    [MuWord selectFrom:start
-        to:end
-        fromWords:words
+    [PDFWord selectFrom:_start
+        to:_end
+        fromWords:_words
         onStartLine:^{
             r = CGRectNull;
         }
-        onWord:^(MuWord *w) {
+        onWord:^(PDFWord *w) {
             r = CGRectUnion(r, w.rect);
         }
         onEndLine:^{
