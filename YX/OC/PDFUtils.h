@@ -6,16 +6,21 @@
 //
 
 #import "PDFAnnotation.h"
-#import "PDFCommon.h"
 #import "PDFWord.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class  PDFDoc;
 @interface PDFUtils : NSObject
 
 + (CGSize)fit:(CGSize)page
            to:(CGSize)screen;
+
++ (nullable UIImage *)renderPage:(PDFDoc *)pDoc
+                      boundsSize:(CGSize)boundsSize
+                     screenScale:(CGFloat)screenScale
+                          number:(NSUInteger)number;
 
 @end
 
