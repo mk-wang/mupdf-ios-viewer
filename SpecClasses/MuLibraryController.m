@@ -55,6 +55,7 @@ static void showAlert(NSString *msg, NSString *filename)
     NSFileManager *fileman = [NSFileManager defaultManager];
     NSString *docdir =
         [NSString stringWithFormat:@"%@/Documents", NSHomeDirectory()];
+    NSLog(@"home doc: %@", docdir);
     NSMutableArray *outfiles = [[NSMutableArray alloc] init];
     NSDirectoryEnumerator *direnum = [fileman enumeratorAtPath:docdir];
     NSString *file;

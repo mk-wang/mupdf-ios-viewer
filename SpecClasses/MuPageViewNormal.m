@@ -758,7 +758,8 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list,
         [hitView release];
         hitView = nil;
     }
-    hitView = [[MuHitView alloc] initWithSearchResults:count forDocument:doc];
+    hitView = [[MuHitView alloc] initWithSearchResults:count
+                                           forDocument:doc];
     if (imageView) {
         hitView.frame = imageView.frame;
         [hitView setPageSize:pageSize];

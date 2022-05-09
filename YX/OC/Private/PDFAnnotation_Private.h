@@ -8,8 +8,8 @@
 #ifndef PDFAnnotation_Private_h
 #define PDFAnnotation_Private_h
 
-#include "PDFCommon.h"
 #import "PDFAnnotation.h"
+#include "PDFCommon.h"
 
 @interface PDFAnnotation ()
 

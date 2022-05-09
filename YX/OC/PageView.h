@@ -5,16 +5,16 @@
 //  Created by MK on 2022/5/9.
 //
 
-#import <Foundation/Foundation.h>
 #import "TapResult.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol PageUpdater  <NSObject>
+@protocol PageUpdater <NSObject>
 - (void)update;
 @end
 
-@protocol PageView  <PageUpdater>
+@protocol PageView <PageUpdater>
 
 - (int)number;
 - (void)willRotate;
@@ -36,7 +36,5 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)update;
 
 @end
-
-
 
 NS_ASSUME_NONNULL_END

@@ -10,7 +10,8 @@
     UIColor *color;
 }
 
-- (instancetype)initWithSearchResults:(int)n forDocument:(fz_document *)doc
+- (instancetype)initWithSearchResults:(int)n
+                          forDocument:(fz_document *)doc
 {
     self = [super initWithFrame:CGRectMake(0, 0, 100, 100)];
     if (self) {
@@ -21,7 +22,7 @@
                                   blue:0xAC / 255.0
                                  alpha:0.5] retain];
 
-        pageSize = CGSizeMake(100, 100);
+        pageSize = CGSizeZero;
 
         for (int i = 0; i < n && i < nelem(hitRects); i++) {
             fz_rect bbox = search_result_bbox(doc, i); // this is thread-safe enough
