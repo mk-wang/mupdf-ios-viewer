@@ -830,8 +830,11 @@ static void saveDoc(const char *current_path, fz_document *doc)
                              otherButtonTitles:@"Save", nil];
         [saveAlert show];
         [saveAlert release];
-    } else {
+    } else if (self.navigationController.topViewController != self) {
         [self.navigationController popViewControllerAnimated:YES];
+    } else {
+        [self.navigationController dismissViewControllerAnimated:true
+                                                      completion:nil];
     }
 }
 

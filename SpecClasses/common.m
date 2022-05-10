@@ -58,20 +58,32 @@ static void releasePixmap(void *info, const void *data, size_t size)
 CGDataProviderRef CreateWrappedPixmap(fz_pixmap *pix)
 {
     unsigned char *samples = fz_pixmap_samples(ctx, pix);
-    int w = fz_pixmap_width(ctx, pix);
+    int stride = fz_pixmap_stride(ctx, pix);
     int h = fz_pixmap_height(ctx, pix);
-    return CGDataProviderCreateWithData(pix, samples, w * 4 * h, releasePixmap);
+
+    return CGDataProviderCreateWithData(pix, samples, h * stride, releasePixmap);
 }
 
 CGImageRef CreateCGImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata)
 {
     int w = fz_pixmap_width(ctx, pix);
     int h = fz_pixmap_height(ctx, pix);
-    CGColorSpaceRef cgcolor = CGColorSpaceCreateDeviceRGB();
-    CGImageRef cgimage =
-        CGImageCreate(w, h, 8, 32, 4 * w, cgcolor, kCGBitmapByteOrderDefault,
-                      cgdata, NULL, NO, kCGRenderingIntentDefault);
-    CGColorSpaceRelease(cgcolor);
+    int components = fz_pixmap_components(ctx, pix);
+    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+
+    CGBitmapInfo mapInfo = kCGBitmapByteOrderDefault | (components < 4 ? kCGImageAlphaNone : kCGImageAlphaNoneSkipLast);
+    CGImageRef cgimage = CGImageCreate(w,
+                                       h,
+                                       8,
+                                       8 * components,
+                                       w * components,
+                                       space,
+                                       mapInfo,
+                                       cgdata,
+                                       NULL,
+                                       NO,
+                                       kCGRenderingIntentDefault);
+    CGColorSpaceRelease(space);
     return cgimage;
 }
 

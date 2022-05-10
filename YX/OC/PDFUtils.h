@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class  PDFDoc;
+@class PDFDoc;
 @interface PDFUtils : NSObject
 
 + (CGSize)fit:(CGSize)page
