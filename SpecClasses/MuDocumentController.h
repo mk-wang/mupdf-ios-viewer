@@ -22,7 +22,7 @@ enum
     BARMODE_DELETE
 };
 
-void asdf();
+void MUPDFInit();
 
 @interface MuDocumentController
     : UIViewController <UIScrollViewDelegate, UIGestureRecognizerDelegate,

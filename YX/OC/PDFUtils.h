@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable UIImage *)renderPage:(PDFDoc *)pDoc
                       boundsSize:(CGSize)boundsSize
                      screenScale:(CGFloat)screenScale
-                          number:(NSUInteger)number;
+                          number:(NSInteger)number;
 
 @end
 

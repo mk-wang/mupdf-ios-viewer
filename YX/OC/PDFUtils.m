@@ -721,7 +721,7 @@ static void updatePixmap(
 + (nullable UIImage *)renderPage:(PDFDoc *)pDoc
                       boundsSize:(CGSize)boundsSize
                      screenScale:(CGFloat)screenScale
-                          number:(NSUInteger)number
+                          number:(NSInteger)number
 {
     fz_page *page = NULL;
     fz_context *ctx = PDFContext.sharedContext.ctx;

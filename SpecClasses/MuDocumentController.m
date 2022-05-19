@@ -1261,7 +1261,7 @@ static void saveDoc(const char *current_path, fz_document *doc)
 
 @end
 
-void asdf()
+void MUPDFInit()
 {
     if (queue == nil) {
         queue = dispatch_queue_create("com.artifex.mupdf.queue", NULL);
