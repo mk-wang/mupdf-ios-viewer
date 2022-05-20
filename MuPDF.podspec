@@ -34,8 +34,8 @@ Pod::Spec.new do |s|
   s.subspec 'YX' do |ss|
     ss.requires_arc= false
     ss.dependency 'MuPDF/Core'
-    ss.source_files = 'YX/**/*.{h,m,swift}'
-    ss.project_header_files = 'YX/OC/**/*_Private.h', 'YX/OC/Private/**/*.h'
+    ss.source_files = 'YX/**/*.{h,m,c,swift}'
+    ss.project_header_files = 'YX/OC/**/*_Private.h', 'YX/OC/Private/**/*.h', 'YX/OC/CTools/**/*.h'
     ss.resources = 'resources/**/*.png'
   end
 end

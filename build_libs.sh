@@ -4,7 +4,7 @@
 # cross compile MuPDF and third party libraries using the regular Makefile.
 # Also see "iOS" section in Makerules.
 
-if [ ! -e libmupdf/generated/gen_cmap_cjk.h ]
+if [ ! -e libmupdf/generated/pdf-cmap-cjk.c ]
 then
 	echo 'ERROR: You are missing the generated files.'
 	echo 'ERROR: Please run "make generate" from the mupdf directory.'

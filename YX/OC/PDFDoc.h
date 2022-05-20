@@ -23,9 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)close;
 
 - (BOOL)needPassword;
-
-- (void)setPassword:(nullable NSString *)text;
-
+- (BOOL)authPassword:(NSString *)password;
 
 @end
 

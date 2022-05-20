@@ -74,9 +74,9 @@
     return fz_needs_password(self.ctx, self.doc) != 0;
 }
 
-- (void)setPassword:(nullable NSString *)text {
-    if (text.length == 0) {
-    }
+- (BOOL)authPassword:(NSString *)password {
+    PDFContext *context = PDFContext.sharedContext;    
+    return fz_authenticate_password(context.ctx, _doc, password.UTF8String);
 }
 
 - (void)dealloc

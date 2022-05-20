@@ -11,6 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+
 @class PDFDoc;
 @interface PDFUtils : NSObject
 
@@ -21,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
                       boundsSize:(CGSize)boundsSize
                      screenScale:(CGFloat)screenScale
                           number:(NSInteger)number;
+
 
 @end
 
