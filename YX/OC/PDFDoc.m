@@ -13,7 +13,7 @@
 
 - (instancetype)initWithPath:(NSString *)path
 {
-    
+
     self = [super init];
     if (self) {
         _path = path.copy;
@@ -24,17 +24,17 @@
 - (void)open
 {
     PDFContext *context = PDFContext.sharedContext;
-    
+
     dispatch_sync(context.queue, ^{
-    });
-    
+                  });
+
     fz_var(self);
-    
+
     fz_context *ctx = context.ctx;
     fz_try(ctx)
     {
         _doc = fz_open_document(ctx, _path.UTF8String);
-        
+
         if (_doc != NULL) {
             pdf_document *pdfDoc = pdf_specifics(ctx, _doc);
             if (pdfDoc != NULL) {
@@ -51,7 +51,8 @@
     }
 }
 
-- (fz_context *)ctx {
+- (fz_context *)ctx
+{
     return PDFContext.sharedContext.ctx;
 }
 
@@ -70,12 +71,14 @@
     });
 }
 
-- (BOOL)needPassword {
+- (BOOL)needPassword
+{
     return fz_needs_password(self.ctx, self.doc) != 0;
 }
 
-- (BOOL)authPassword:(NSString *)password {
-    PDFContext *context = PDFContext.sharedContext;    
+- (BOOL)authPassword:(NSString *)password
+{
+    PDFContext *context = PDFContext.sharedContext;
     return fz_authenticate_password(context.ctx, _doc, password.UTF8String);
 }
 
