@@ -31,7 +31,6 @@
         _queue = dispatch_queue_create("com.yx.pdf.context.queue", DISPATCH_QUEUE_SERIAL);
         _ctx = fz_new_context(NULL, NULL, 128 << 20);
         fz_register_document_handlers(_ctx);
-
         _screenScale = [UIScreen mainScreen].scale;
     }
     return self;

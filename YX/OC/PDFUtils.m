@@ -55,13 +55,9 @@ static void releasePixmap(void *info, const void *data, size_t size)
     fz_context *ctx = pCtx.ctx;
     dispatch_queue_t queue = pCtx.queue;
     
-    if (queue)
-        dispatch_async(queue, ^{
-            fz_drop_pixmap(ctx, info);
-        });
-    else {
+    dispatch_async(queue, ^{
         fz_drop_pixmap(ctx, info);
-    }
+    });
 }
 
 CGDataProviderRef CreateWrappedPixmap(fz_pixmap *pix)
@@ -717,6 +713,23 @@ static void updatePixmap(
 + (CGSize)fit:(CGSize)page to:(CGSize)screen
 {
     return fitPageToScreen(page, screen);
+}
+
++ (void)renderPage:(PDFDoc *)pDoc
+        boundsSize:(CGSize)boundsSize
+       screenScale:(CGFloat)screenScale
+            number:(NSInteger)number
+        completion:(void(^)(UIImage * _Nullable ))completion
+{
+    dispatch_async(PDFContext.sharedContext.queue, ^{
+        UIImage *image  = [self renderPage:pDoc
+                                boundsSize:boundsSize
+                               screenScale:screenScale
+                                    number:number];
+        if (completion != nil) {
+            completion(image);
+        }
+    });
 }
 
 + (nullable UIImage *)renderPage:(PDFDoc *)pDoc
