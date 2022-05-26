@@ -9,16 +9,28 @@
 #import "PDFContext.h"
 #import "PDFDoc_Private.h"
 
-@implementation PDFDoc
+@implementation PDFDoc {
+    id<NSLocking> _lock;
+}
 
 - (instancetype)initWithPath:(NSString *)path
 {
-
     self = [super init];
     if (self) {
         _path = path.copy;
+        _lock = [NSLock new];
     }
     return self;
+}
+
+- (void)lock
+{
+    [_lock lock];
+}
+
+- (void)unlock
+{
+    [_lock unlock];
 }
 
 - (void)open
@@ -27,6 +39,8 @@
 
     dispatch_sync(context.queue, ^{
                   });
+
+    [self lock];
 
     fz_var(self);
 
@@ -49,6 +63,8 @@
             fz_drop_document(ctx, _doc);
         }
     }
+
+    [self unlock];
 }
 
 - (fz_context *)ctx
@@ -58,28 +74,51 @@
 
 - (void)close
 {
-    // use serial thread to check _doc
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (_doc != NULL) {
-            PDFContext *context = PDFContext.sharedContext;
-            fz_document *doc = _doc;
-            dispatch_async(context.queue, ^{
-                fz_drop_document(context.ctx, doc);
-            });
-            _doc = NULL;
-        }
-    });
+    [self lock];
+
+    if (_doc != NULL) {
+        PDFContext *context = PDFContext.sharedContext;
+        fz_document *doc = _doc;
+        dispatch_async(context.queue, ^{
+            fz_drop_document(context.ctx, doc);
+        });
+        _doc = NULL;
+    }
+
+    [self unlock];
+}
+
+- (BOOL)isOpen
+{
+    [self lock];
+
+    BOOL value = _doc != nil;
+
+    [self unlock];
+
+    return value;
 }
 
 - (BOOL)needPassword
 {
-    return fz_needs_password(self.ctx, self.doc) != 0;
+    [self lock];
+
+    BOOL value = fz_needs_password(self.ctx, _doc) != 0;
+
+    [self unlock];
+
+    return value;
 }
 
 - (BOOL)authPassword:(NSString *)password
 {
-    PDFContext *context = PDFContext.sharedContext;
-    return fz_authenticate_password(context.ctx, _doc, password.UTF8String);
+    [self lock];
+
+    BOOL value = fz_authenticate_password(self.ctx, _doc, password.UTF8String);
+
+    [self unlock];
+
+    return value;
 }
 
 - (void)dealloc

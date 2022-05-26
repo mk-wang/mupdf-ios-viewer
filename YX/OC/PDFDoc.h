@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) BOOL interactive;
 
+@property (nonatomic, assign) BOOL isOpen;
+
 - (instancetype)initWithPath:(NSString *)path;
 
 - (void)open;
