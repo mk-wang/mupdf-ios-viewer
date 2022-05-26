@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PDFDoc ()
 
-@property (nonatomic, assign) fz_document *doc;
+@property (nullable, nonatomic, assign) fz_document *doc;
 
 @property (nonatomic, assign, readonly) fz_context *ctx;
 
